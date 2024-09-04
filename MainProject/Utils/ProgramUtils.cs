@@ -1,9 +1,11 @@
-using System;
-using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 using NLog;
+using BasicDotnetTemplate.MainProject.Core.Database;
 using BasicDotnetTemplate.MainProject.Models.Settings;
-using System.Reflection;
+
+
 
 namespace BasicDotnetTemplate.MainProject.Utils;
 
@@ -123,6 +125,55 @@ public static class ProgramUtils
         }
 
         Logger.Info("[ProgramUtils][AddMiddlewares] Done middlewares");
+    }
+
+    public static void AddDbContext(ref WebApplicationBuilder builder, AppSettings appSettings)
+    {
+        Logger.Info("[ProgramUtils][AddDbContext] Adding DbContext");
+        var databaseAdded = "";
+
+        var connectionString = appSettings?.DatabaseSettings?.SqlServerConnectionString ?? String.Empty;
+
+        if (!String.IsNullOrEmpty(connectionString))
+        {
+            connectionString = connectionString.Replace("SQLSERVER_DB_SERVER", Environment.GetEnvironmentVariable("SQLSERVER_DB_SERVER"));
+            connectionString = connectionString.Replace("SQLSERVER_DB_DATABASE", Environment.GetEnvironmentVariable("SQLSERVER_DB_DATABASE"));
+            connectionString = connectionString.Replace("SQLSERVER_DB_USER", Environment.GetEnvironmentVariable("SQLSERVER_DB_USER"));
+            connectionString = connectionString.Replace("SQLSERVER_DB_PASSWORD", Environment.GetEnvironmentVariable("SQLSERVER_DB_PASSWORD"));
+
+            builder.Services.AddDbContext<SqlServerContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            databaseAdded += "SqlServer";
+        }
+
+
+
+        connectionString = appSettings?.DatabaseSettings?.MongoDbSettings?.MongoDbConnectionString ?? String.Empty;
+
+        if (!String.IsNullOrEmpty(connectionString))
+        {
+            connectionString = connectionString.Replace("MONGODB_DB_SERVER", Environment.GetEnvironmentVariable("MONGODB_DB_SERVER"));
+            connectionString = connectionString.Replace("MONGODB_DB_DATABASE", Environment.GetEnvironmentVariable("MONGODB_DB_DATABASE"));
+            connectionString = connectionString.Replace("MONGODB_DB_USER", Environment.GetEnvironmentVariable("MONGODB_DB_USER"));
+            connectionString = connectionString.Replace("MONGODB_DB_PASSWORD", Environment.GetEnvironmentVariable("MONGODB_DB_PASSWORD"));
+
+            var mongoClient = new MongoClient(connectionString);
+
+            var databaseName = appSettings?.DatabaseSettings?.MongoDbSettings?.DatabaseName ?? Environment.GetEnvironmentVariable("MONGODB_DB_DATABASE") ?? String.Empty;
+
+            if (!String.IsNullOrEmpty(databaseName))
+            {
+                var dbContextOptions = new DbContextOptionsBuilder<MongoDbContext>()
+                    .UseMongoDB(mongoClient, databaseName);
+            }
+
+            databaseAdded += (String.IsNullOrEmpty(databaseAdded) ? "" : ", ") + "MongoDB";
+        }
+
+        var message = String.IsNullOrEmpty(databaseAdded) ? "No DbContext added" : $"{databaseAdded} added";
+
+        Logger.Info($"[ProgramUtils][AddDbContext] {message}");
     }
 
 }
