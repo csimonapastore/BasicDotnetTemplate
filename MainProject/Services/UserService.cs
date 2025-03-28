@@ -1,6 +1,7 @@
 
 using System.Collections;
 using BasicDotnetTemplate.MainProject.Core.Database;
+using BasicDotnetTemplate.MainProject.Models.Api.Common.Exceptions;
 using BasicDotnetTemplate.MainProject.Models.Api.Data.User;
 using BasicDotnetTemplate.MainProject.Models.Database.SqlServer;
 using Microsoft.EntityFrameworkCore;
@@ -104,12 +105,13 @@ public class UserService : BaseService, IUserService
 
     public async Task<User?> CreateUserAsync(CreateUserRequestData data, Role role)
     {
+        User? user;
+
         using var transaction = await _sqlServerContext.Database.BeginTransactionAsync();
 
-        User? user;
-        var tempUser = CreateUserData(data, role);
         try
         {
+            var tempUser = CreateUserData(data, role);
             await _sqlServerContext.Users.AddAsync(tempUser);
             await _sqlServerContext.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -119,7 +121,7 @@ public class UserService : BaseService, IUserService
         {
             await transaction.RollbackAsync();
             Logger.Error(exception, $"[UserService][CreateUserAsync]");
-            throw;
+            throw new CreateException($"An error occurred while creating the user for transaction ID {transaction.TransactionId}.", exception);
         }
 
 

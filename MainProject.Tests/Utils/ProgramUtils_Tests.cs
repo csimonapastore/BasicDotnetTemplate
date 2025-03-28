@@ -299,7 +299,6 @@ public class ProgramUtils_Tests
             ProgramUtils.AddDbContext(ref builder, realAppSettings);
 
             var areEquals = expectedDbSettings.SqlServerConnectionString == realAppSettings.DatabaseSettings?.SqlServerConnectionString;
-            Console.WriteLine(realAppSettings.DatabaseSettings?.SqlServerConnectionString);
             Assert.IsTrue(areEquals);
         }
         catch (Exception ex)

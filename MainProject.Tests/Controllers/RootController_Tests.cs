@@ -39,7 +39,6 @@ public class RootController_Test
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.InnerException);
             Assert.Fail($"An exception was thrown: {ex}");
         }
     }

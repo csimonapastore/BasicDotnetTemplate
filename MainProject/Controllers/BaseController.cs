@@ -13,6 +13,7 @@ namespace BasicDotnetTemplate.MainProject.Controllers
         protected readonly IConfiguration _configuration;
         protected readonly AppSettings _appSettings;
         protected readonly string _requestNotWellFormed = "Request is not well formed";
+        protected readonly string _somethingWentWrong = "Something went wrong";
 
         protected BaseController(
             IConfiguration configuration

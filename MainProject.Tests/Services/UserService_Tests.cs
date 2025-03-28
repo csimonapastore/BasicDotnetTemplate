@@ -120,6 +120,52 @@ public class UserService_Tests
     }
 
     [TestMethod]
+    public async Task CreateUserAsync_Exception()
+    {
+        try
+        {
+            var expectedUser = ModelsInit.CreateUser();
+
+            CreateUserRequestData data = new CreateUserRequestData()
+            {
+                FirstName = expectedUser.FirstName ?? String.Empty,
+                LastName = expectedUser.LastName ?? String.Empty,
+                Email = expectedUser.Email ?? String.Empty
+            };
+
+            Role role = new()
+            {
+                Name = expectedUser.Role?.Name ?? String.Empty,
+                IsNotEditable = expectedUser.Role?.IsNotEditable ?? false,
+                Guid = expectedUser.Role?.Guid ?? String.Empty
+            };
+
+            var exceptionUserService = TestUtils.CreateUserServiceException();
+
+            if (exceptionUserService != null)
+            {
+                try
+                {
+                    var user = await exceptionUserService.CreateUserAsync(data, role);
+                    Assert.Fail($"Expected exception instead of response: {user?.Guid}");
+                }
+                catch (Exception exception)
+                {
+                    Assert.IsInstanceOfType(exception, typeof(Exception));
+                }
+            }
+            else
+            {
+                Assert.Fail($"UserService is null");
+            }
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"An exception was thrown: {ex}");
+        }
+    }
+
+    [TestMethod]
     public async Task CheckIfEmailIsValid_EmailCurrentUser()
     {
         try

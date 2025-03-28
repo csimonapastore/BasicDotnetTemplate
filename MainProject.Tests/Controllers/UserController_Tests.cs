@@ -31,7 +31,7 @@ using BasicDotnetTemplate.MainProject.Models.Database.SqlServer;
 namespace BasicDotnetTemplate.MainProject.Tests;
 
 [TestClass]
-public class UserControllerTests
+public class UserController_Tests
 {
     private Mock<IUserService>? _userServiceMock;
     private Mock<IRoleService>? _roleServiceMock;
@@ -43,7 +43,7 @@ public class UserControllerTests
         IConfiguration configuration = TestUtils.CreateConfiguration();
         _userServiceMock = new Mock<IUserService>();
         _roleServiceMock = new Mock<IRoleService>();
-        _userController = new UserController(configuration, _userServiceMock?.Object, _roleServiceMock.Object);
+        _userController = new UserController(configuration, _userServiceMock.Object, _roleServiceMock.Object);
     }
 
     [TestMethod]
@@ -100,7 +100,7 @@ public class UserControllerTests
     }
 
     [TestMethod]
-    public async Task GetUserByGuidAsync_AuthenticateRequestDataNull()
+    public async Task GetUserByGuidAsync_GuidIsEmpty()
     {
         if (_userController == null)
         {
@@ -232,7 +232,7 @@ public class UserControllerTests
     }
 
     [TestMethod]
-    public async Task CreateUserAsync_Should_Return_200_When_Successful()
+    public async Task CreateUserAsync_Success()
     {
         if (_userController == null)
         {

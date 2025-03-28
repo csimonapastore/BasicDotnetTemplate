@@ -1,6 +1,7 @@
 
 using System.Collections;
 using BasicDotnetTemplate.MainProject.Core.Database;
+using BasicDotnetTemplate.MainProject.Models.Api.Common.Exceptions;
 using BasicDotnetTemplate.MainProject.Models.Api.Data.Role;
 using BasicDotnetTemplate.MainProject.Models.Database.SqlServer;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ public interface IRoleService
     Task<Role?> GetRoleByGuidAsync(string guid);
     Task<bool> CheckIfNameIsValid(string name, string? guid = "");
     Task<Role?> CreateRoleAsync(CreateRoleRequestData data);
+    Task<Role?> UpdateRoleAsync(CreateRoleRequestData data, Role role);
     Task<Role?> GetRoleForUser(string? guid);
     Task<bool?> DeleteRoleAsync(Role role);
 }
@@ -107,7 +109,35 @@ public class RoleService : BaseService, IRoleService
         {
             await transaction.RollbackAsync();
             Logger.Error(exception, $"[RoleService][CreateRoleAsync]");
-            throw;
+            throw new CreateException($"An error occurred while saving the role for transaction ID {transaction.TransactionId}.", exception);
+        }
+
+        return role;
+    }
+
+    public async Task<Role?> UpdateRoleAsync(CreateRoleRequestData data, Role role)
+    {
+        if (role.IsNotEditable)
+            return role;
+
+        using var transaction = await _sqlServerContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            role.Name = data.Name;
+            role.IsNotEditable = data.IsNotEditable;
+            role.UpdateTime = DateTime.UtcNow;
+            role.UpdateUserId = this.GetCurrentUserId();
+
+            _sqlServerContext.Roles.Update(role);
+            await _sqlServerContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, $"[RoleService][UpdateRoleAsync] | {transaction.TransactionId}");
+            await transaction.RollbackAsync();
+            throw new UpdateException($"An error occurred while updating the role for transaction ID {transaction.TransactionId}.", exception);
         }
 
         return role;

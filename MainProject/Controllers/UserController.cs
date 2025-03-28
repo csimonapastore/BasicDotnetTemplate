@@ -57,7 +57,7 @@ namespace BasicDotnetTemplate.MainProject.Controllers
             }
             catch (Exception exception)
             {
-                var message = "Something went wrong";
+                var message = this._somethingWentWrong;
                 if (!String.IsNullOrEmpty(exception.Message))
                 {
                     message += $". {exception.Message}";
@@ -118,7 +118,7 @@ namespace BasicDotnetTemplate.MainProject.Controllers
             }
             catch (Exception exception)
             {
-                var message = "Something went wrong";
+                var message = this._somethingWentWrong;
                 if (!String.IsNullOrEmpty(exception.Message))
                 {
                     message += $". {exception.Message}";

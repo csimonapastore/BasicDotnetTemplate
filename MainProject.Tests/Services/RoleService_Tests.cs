@@ -62,7 +62,7 @@ public class RoleService_Tests
     }
 
     [TestMethod]
-    public async Task CreateRoleData()
+    public async Task CreateRoleAsync_Success()
     {
         try
         {
@@ -89,6 +89,42 @@ public class RoleService_Tests
         catch (Exception ex)
         {
             Console.WriteLine(ex.InnerException);
+            Assert.Fail($"An exception was thrown: {ex}");
+        }
+    }
+
+    [TestMethod]
+    public async Task CreateRoleAsync_Exception()
+    {
+        try
+        {
+            CreateRoleRequestData data = new CreateRoleRequestData()
+            {
+                Name = "Exception",
+                IsNotEditable = false
+            };
+
+            var exceptionRoleService = TestUtils.CreateRoleServiceException();
+
+            if (exceptionRoleService != null)
+            {
+                try
+                {
+                    var role = await exceptionRoleService.CreateRoleAsync(data);
+                    Assert.Fail($"Expected exception instead of response: {role?.Guid}");
+                }
+                catch (Exception exception)
+                {
+                    Assert.IsInstanceOfType(exception, typeof(Exception));
+                }
+            }
+            else
+            {
+                Assert.Fail($"RoleService is null");
+            }
+        }
+        catch (Exception ex)
+        {
             Assert.Fail($"An exception was thrown: {ex}");
         }
     }
@@ -258,6 +294,111 @@ public class RoleService_Tests
         {
             Console.WriteLine(ex.InnerException);
             Assert.Fail($"An exception was thrown: {ex}");
+        }
+    }
+
+    [TestMethod]
+    public async Task UpdateRoleAsync_Success()
+    {
+        try
+        {
+            CreateRoleRequestData data = new CreateRoleRequestData()
+            {
+                Name = "ChangedRoleName",
+                IsNotEditable = false
+            };
+
+            if (_roleService != null)
+            {
+                Assert.IsNotNull(_role);
+                var role = await _roleService.UpdateRoleAsync(data, _role!);
+                Assert.IsInstanceOfType(role, typeof(Role));
+                Assert.IsNotNull(role);
+                Assert.IsTrue(data.Name == role.Name);
+                Assert.IsTrue(data.IsNotEditable == role.IsNotEditable);
+                _role = role;
+            }
+            else
+            {
+                Assert.Fail($"RoleService is null");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException);
+            Assert.Fail($"An exception was thrown: {ex}");
+        }
+    }
+
+    [TestMethod]
+    public async Task UpdateRoleAsync_NotEditable()
+    {
+        try
+        {
+            CreateRoleRequestData createRoleData = new CreateRoleRequestData()
+            {
+                Name = "NotEditableRole",
+                IsNotEditable = true
+            };
+
+
+            if (_roleService != null)
+            {
+                var role = await _roleService.CreateRoleAsync(createRoleData);
+                Assert.IsNotNull(role);
+
+                CreateRoleRequestData updateRoleData = new CreateRoleRequestData()
+                {
+                    Name = "TryingToEditRole",
+                    IsNotEditable = false
+                };
+
+                var roleUpdatedRole = await _roleService.UpdateRoleAsync(updateRoleData, role!);
+                Assert.IsInstanceOfType(roleUpdatedRole, typeof(Role));
+                Assert.IsNotNull(roleUpdatedRole);
+                Assert.IsTrue(roleUpdatedRole.Name == createRoleData.Name);
+                Assert.IsTrue(roleUpdatedRole.IsNotEditable == createRoleData.IsNotEditable);
+            }
+            else
+            {
+                Assert.Fail($"RoleService is null");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.InnerException);
+            Assert.Fail($"An exception was thrown: {ex}");
+        }
+    }
+
+    [TestMethod]
+    public async Task UpdateRoleAsync_Exception()
+    {
+        try
+        {
+            CreateRoleRequestData data = new CreateRoleRequestData()
+            {
+                Name = "Exception",
+                IsNotEditable = false
+            };
+
+            var exceptionRoleService = TestUtils.CreateRoleServiceException();
+
+            if (exceptionRoleService != null)
+            {
+                Assert.IsNotNull(_role);
+                var role = await exceptionRoleService.UpdateRoleAsync(data, _role!);
+                Assert.Fail($"Expected exception instead of response: {role?.Guid}");
+
+            }
+            else
+            {
+                Assert.Fail($"RoleService is null");
+            }
+        }
+        catch (Exception ex)
+        {
+            Assert.IsInstanceOfType(ex, typeof(Exception));
         }
     }
 

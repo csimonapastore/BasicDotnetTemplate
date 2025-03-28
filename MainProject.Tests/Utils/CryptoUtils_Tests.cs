@@ -151,8 +151,6 @@ public class CryptoUtils_Tests
             AppSettings appSettings = ProgramUtils.AddConfiguration(ref builder, System.AppDomain.CurrentDomain.BaseDirectory + "/JsonData");
             CryptUtils cryptoUtils = new CryptUtils(appSettings);
             var verified = cryptoUtils.VerifyPassword(password, salt, 0, hashedPassword);
-            Console.WriteLine(cryptoUtils.GeneratePassword(password, salt, 0));
-
             Assert.IsTrue(verified);
         }
         catch (Exception ex)

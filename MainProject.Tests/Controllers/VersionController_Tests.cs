@@ -68,7 +68,6 @@ public class VersionController_Tests
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.InnerException);
             Assert.Fail($"An exception was thrown: {ex}");
         }
     }
@@ -80,7 +79,6 @@ public class VersionController_Tests
 
         try
         {
-            Console.WriteLine(System.AppDomain.CurrentDomain.BaseDirectory);
             var configuration = TestUtils.CreateEmptyConfiguration(System.AppDomain.CurrentDomain.BaseDirectory + "/JsonData", "emptyAppsettings.json");
             VersionController versionController = new VersionController(configuration);
             var result = versionController.GetVersion();
@@ -97,7 +95,6 @@ public class VersionController_Tests
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.InnerException);
             Assert.Fail($"An exception was thrown: {ex}");
         }
     }
